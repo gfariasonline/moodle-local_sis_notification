@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/sis_notification/db" VERSION="20261016" COMMENT="Course notification rules and delivery state">
+  <TABLES>
+    <TABLE NAME="local_sis_notification_rule" COMMENT="local sis notif rule">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="conditiontype" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false" DEFAULT="inactivity"/>
+        <FIELD NAME="days" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="7"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="body" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="bodyformat" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" DEFAULT="1"/>
+        <FIELD NAME="repeatdays" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="maxsends" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" DEFAULT="1"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="activatedat" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="revision" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="1"/>
+        <FIELD NAME="createdby" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="scanuserid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="course-enabled" UNIQUE="false" FIELDS="courseid, enabled"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_sis_notification_state" COMMENT="local sis notif state">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="cycle" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="1"/>
+        <FIELD NAME="baseat" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="enroluntil" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enrolat" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="observedat" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="lastaccess" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="sentcount" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="nextdue" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="ruleversion" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="1"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" DEFAULT="active"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="ruleid" TYPE="foreign" FIELDS="ruleid" REFTABLE="local_sis_notification_rule" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="rule-user" UNIQUE="true" FIELDS="ruleid, userid"/>
+        <INDEX NAME="due" UNIQUE="false" FIELDS="ruleid, nextdue"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_sis_notification_send" COMMENT="local sis notif send">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="cycle" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="1"/>
+        <FIELD NAME="seq" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" DEFAULT="1"/>
+        <FIELD NAME="ruleversion" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="1"/>
+        <FIELD NAME="dueat" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" DEFAULT="pending"/>
+        <FIELD NAME="leaseuntil" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="attempts" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="reason" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="messageid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="ruleid" TYPE="foreign" FIELDS="ruleid" REFTABLE="local_sis_notification_rule" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="dispatch" UNIQUE="true" FIELDS="ruleid, userid, cycle, seq"/>
+        <INDEX NAME="due" UNIQUE="false" FIELDS="status, dueat"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
