@@ -42,7 +42,7 @@ History retention defaults to 180 days. Cycle counters are retained while the ru
 
 ## Validation
 
-Validated on 16 October 2026 with Moodle 5.3, PHP 8.4.26 and MariaDB 11.4.13: PHPUnit passed 88 tests / 267 assertions; Behat passed 8 scenarios / 97 steps. Static CI checks passed using PHP 8.3.35 for tool compatibility. Other Moodle versions, external SMTP/push delivery and representative production load have not been validated.
+Validated on 16 October 2026 with GitHub Actions (Moodle Plugin CI): Moodle 4.5 (PHP 8.2 / MariaDB and PHP 8.3 / PostgreSQL), Moodle 5.2 (PHP 8.3 / MariaDB) and Moodle 5.3 (PHP 8.3 / PostgreSQL). Each run covers PHP lint, coding standard, PHPDoc, plugin validation, upgrade savepoints, Grunt, PHPUnit and Behat. External SMTP/push delivery and representative production load have not been validated.
 
 ## Licence
 
