@@ -40,26 +40,10 @@ Changing a rule's condition, days or activity requires pausing it and explicitly
 
 History retention defaults to 180 days. Cycle counters are retained while the rule exists to prevent retention cleanup from repeating a completed reminder. Unknown outcomes remain available for investigation.
 
-## Development checks
-
-The configured local CI tool is `~/Sites/moodle-plugin-ci/bin/moodle-plugin-ci`. Run from the plugin checkout, with `MOODLE_DIR` pointing at the Moodle root containing `config.php` and `vendor/`:
-
-```sh
-~/Sites/moodle-plugin-ci/bin/moodle-plugin-ci phplint .
-~/Sites/moodle-plugin-ci/bin/moodle-plugin-ci phpmd .
-~/Sites/moodle-plugin-ci/bin/moodle-plugin-ci phpcs --max-warnings 0 .
-~/Sites/moodle-plugin-ci/bin/moodle-plugin-ci phpdoc --moodle "$MOODLE_DIR" --max-warnings 0 .
-~/Sites/moodle-plugin-ci/bin/moodle-plugin-ci validate --moodle "$MOODLE_DIR" .
-~/Sites/moodle-plugin-ci/bin/moodle-plugin-ci savepoints .
-~/Sites/moodle-plugin-ci/bin/moodle-plugin-ci phpunit --moodle "$MOODLE_DIR" --fail-on-warning .
-```
-
-PHPUnit uses synthetic accounts and a message sink. Never run notification tests against real recipients.
-
 ## Validation
 
 Validated on 16 October 2026 with Moodle 5.3, PHP 8.4.26 and MariaDB 11.4.13: PHPUnit passed 88 tests / 267 assertions; Behat passed 8 scenarios / 97 steps. Static CI checks passed using PHP 8.3.35 for tool compatibility. Other Moodle versions, external SMTP/push delivery and representative production load have not been validated.
 
-## Reference and licence
+## Licence
 
-Licensed under GPL v3 or later. The design was informed by Catalyst's [Re-engagement activity](https://github.com/catalyst/moodle-mod_reengagement), reference commit `7a34c3f32b7e147ed22c62de5d0c0a76dc81364a`. The notification engine is implemented independently; no `mod_reengagement` installation is required.
+Licensed under GPL v3 or later.
