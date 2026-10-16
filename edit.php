@@ -65,9 +65,14 @@ if ($data = $form->get_data()) {
     try {
         $savedid = rule_service::save($data, $course->id);
         $name = format_string($data->name, true, ['context' => $context]);
+        $enable = !$rule && !empty($data->enableonsave);
+        if ($enable) {
+            rule_service::set_enabled($savedid, $course->id, true);
+        }
+        $messagekey = $rule ? 'ruleupdated' : ($enable ? 'rulecreatedenabled' : 'rulecreated');
         redirect(
             $returnurl,
-            get_string($rule ? 'ruleupdated' : 'rulecreated', 'local_sis_notification', $name),
+            get_string($messagekey, 'local_sis_notification', $name),
             null,
             \core\output\notification::NOTIFY_SUCCESS
         );

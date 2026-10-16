@@ -93,7 +93,7 @@ class rule_form extends \moodleform {
             $mform->hardFreeze(['conditiontype', 'days', 'cmid']);
         }
 
-        $this->add_message_fields($context);
+        $this->add_message_fields($context, $rule === null);
 
         $mform->addElement('header', 'sendinghdr', get_string('sending', 'local_sis_notification'));
         $mform->addElement('text', 'repeatdays', get_string('repeatdays', 'local_sis_notification'), [
@@ -124,6 +124,21 @@ class rule_form extends \moodleform {
             );
             $mform->setType('resetcycle', PARAM_BOOL);
             $mform->addHelpButton('resetcycle', 'resetcycle', 'local_sis_notification');
+        }
+
+        if (!$rule) {
+            $mform->addElement(
+                'advcheckbox',
+                'enableonsave',
+                get_string('enableonsave', 'local_sis_notification'),
+                get_string('enableonsave_check', 'local_sis_notification')
+            );
+            $mform->setType('enableonsave', PARAM_BOOL);
+            $mform->setDefault('enableonsave', 1);
+        }
+
+        foreach (['generalhdr', 'conditionhdr', 'messagehdr', 'sendinghdr'] as $header) {
+            $mform->setExpanded($header, true);
         }
 
         $this->add_action_buttons(true, get_string('savechanges'));
@@ -163,8 +178,9 @@ class rule_form extends \moodleform {
     /**
      * Add the message editor and supported template variable hints.
      * @param \context $context Course context.
+     * @param bool $isnew Whether a new rule is being created, which pre-fills an example message.
      */
-    private function add_message_fields(\context $context): void {
+    private function add_message_fields(\context $context, bool $isnew): void {
         $mform = $this->_form;
         $mform->addElement('header', 'messagehdr', get_string('message', 'local_sis_notification'));
         $mform->addElement('text', 'subject', get_string('subject', 'local_sis_notification'), [
@@ -183,6 +199,13 @@ class rule_form extends \moodleform {
         ]);
         $mform->setType('body', PARAM_RAW);
         $mform->addRule('body', null, 'required', null, 'client');
+        if ($isnew) {
+            $mform->setDefault('subject', get_string('defaultsubject', 'local_sis_notification'));
+            $mform->setDefault('body', [
+                'text' => get_string('defaultbody', 'local_sis_notification'),
+                'format' => FORMAT_HTML,
+            ]);
+        }
 
         $common = rule_service::format_variables(rule_service::get_allowed_variables(rule_service::CONDITION_INACTIVITY));
         $activity = rule_service::format_variables(['activityname', 'activityurl']);

@@ -32,6 +32,7 @@ Feature: Manage the notification rules of a course
       | Days      | 7                                         |
       | Subject   | We miss you, {firstname}                  |
       | Message   | Hi {fullname}, come back to {coursename}. |
+    And I set the field "Enable this rule as soon as it is saved" to ""
     And I press "Save changes"
     And I should see "The rule \"Weekly nudge\" was created. It is paused"
     And I should see "Paused" in the "Weekly nudge" "table_row"
@@ -41,6 +42,17 @@ Feature: Manage the notification rules of a course
     And I click on "Pause" "button" in the "Weekly nudge" "table_row"
     And I should see "The rule \"Weekly nudge\" was paused."
     And I should see "Paused" in the "Weekly nudge" "table_row"
+
+  Scenario: A new rule is enabled by default and starts with an example message
+    Given I am on the "Course 1" course page logged in as teacher1
+    When I navigate to "Notifications" in current page administration
+    And I click on "Add a rule" "link"
+    Then the field "Subject" matches value "We miss you, {firstname}"
+    And the field "Enable this rule as soon as it is saved" matches value "1"
+    And I set the field "Rule name" to "Default enabled"
+    And I press "Save changes"
+    And I should see "The rule \"Default enabled\" was created and is enabled."
+    And I should see "Enabled" in the "Default enabled" "table_row"
 
   Scenario: Unknown variables and invalid days are rejected
     Given I am on the "Course 1" course page logged in as teacher1
@@ -122,7 +134,6 @@ Feature: Manage the notification rules of a course
       | Subject   | Initial subject    |
       | Message   | Please return      |
     And I press "Save changes"
-    And I click on "Enable" "button" in the "Three day reminder" "table_row"
     And I click on "Edit" "link" in the "Three day reminder" "table_row"
     And I set the following fields to these values:
       | Subject | Updated subject |
