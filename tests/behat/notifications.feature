@@ -32,7 +32,7 @@ Feature: Manage the notification rules of a course
       | Days      | 7                                         |
       | Subject   | We miss you, {firstname}                  |
       | Message   | Hi {fullname}, come back to {coursename}. |
-    And I set the field "Enable this rule as soon as it is saved" to ""
+    And I set the field "Enable the rule" to ""
     And I press "Save changes"
     And I should see "The rule \"Weekly nudge\" was created. It is paused"
     And I should see "Paused" in the "Weekly nudge" "table_row"
@@ -48,7 +48,7 @@ Feature: Manage the notification rules of a course
     When I navigate to "Notifications" in current page administration
     And I click on "Add a rule" "link"
     Then the field "Subject" matches value "We miss you, {firstname}"
-    And the field "Enable this rule as soon as it is saved" matches value "1"
+    And the field "Enable the rule" matches value "1"
     And I set the field "Rule name" to "Default enabled"
     And I press "Save changes"
     And I should see "The rule \"Default enabled\" was created and is enabled."
@@ -79,7 +79,7 @@ Feature: Manage the notification rules of a course
       | Subject         | Please read {activityname}         |
       | Message         | Open {activityurl}                 |
     And I press "Save changes"
-    Then I should see "The rule \"Reading reminder\" was created."
+    Then I should see "The rule \"Reading reminder\" was created and is enabled."
     And I should see "\"Read first\" not completed 3 days after it becomes available" in the "Reading reminder" "table_row"
 
   Scenario: Deleting a rule asks for confirmation
