@@ -28,6 +28,8 @@ use local_sis_notification\local\dispatch_service;
 
 /**
  * Cover delayed cron and asynchronous completion.
+ *
+ * @coversNothing
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 final class regression_test extends \advanced_testcase {

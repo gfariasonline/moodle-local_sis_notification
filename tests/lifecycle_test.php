@@ -29,6 +29,8 @@ use local_sis_notification\privacy\provider;
 
 /**
  * Exercise course cleanup without affecting other courses.
+ *
+ * @coversNothing
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 final class lifecycle_test extends \advanced_testcase {

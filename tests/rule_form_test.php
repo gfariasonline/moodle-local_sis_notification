@@ -29,6 +29,8 @@ use local_sis_notification\local\rule_service;
 
 /**
  * Exercise frozen form values before native Moodle validation.
+ *
+ * @coversNothing
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 final class rule_form_test extends \advanced_testcase {

@@ -30,6 +30,8 @@ require_once(__DIR__ . '/fixtures/rule_test_helper.php');
  * @category   test
  * @copyright  2026 Thiago Serrao
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @covers \local_sis_notification\local\course_access
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(course_access::class)]
 final class rule_history_test extends \advanced_testcase {

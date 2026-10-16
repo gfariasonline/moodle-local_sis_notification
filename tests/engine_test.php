@@ -29,6 +29,8 @@ use local_sis_notification\local\recipient_selector;
 
 /**
  * Exercise real enrolments, completion and the messaging sink.
+ *
+ * @covers \local_sis_notification\local\dispatch_service
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(dispatch_service::class)]
 final class engine_test extends \advanced_testcase {
