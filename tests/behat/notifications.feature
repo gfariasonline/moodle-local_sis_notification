@@ -32,7 +32,7 @@ Feature: Manage the notification rules of a course
       | Days      | 7                                         |
       | Subject   | We miss you, {firstname}                  |
       | Message   | Hi {fullname}, come back to {coursename}. |
-    And I set the field "Enable the rule" to ""
+    And I set the field "Enable the rule" to "0"
     And I press "Save changes"
     And I should see "The rule \"Weekly nudge\" was created. It is paused"
     And I should see "Paused" in the "Weekly nudge" "table_row"
