@@ -23,6 +23,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/fixtures/rule_test_helper.php');
 
+#[\PHPUnit\Framework\Attributes\CoversClass(course_access::class)]
 /**
  * Tests for the delivery history.
  *
@@ -33,7 +34,6 @@ require_once(__DIR__ . '/fixtures/rule_test_helper.php');
  *
  * @covers \local_sis_notification\local\course_access
  */
-#[\PHPUnit\Framework\Attributes\CoversClass(course_access::class)]
 final class rule_history_test extends \advanced_testcase {
     use rule_test_helper;
 

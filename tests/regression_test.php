@@ -26,12 +26,12 @@ namespace local_sis_notification;
 
 use local_sis_notification\local\dispatch_service;
 
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 /**
  * Cover delayed cron and asynchronous completion.
  *
  * @coversNothing
  */
-#[\PHPUnit\Framework\Attributes\CoversNothing]
 final class regression_test extends \advanced_testcase {
     /**
      * Return an active old enrolment with a rule.

@@ -23,6 +23,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/fixtures/rule_test_helper.php');
 
+#[\PHPUnit\Framework\Attributes\CoversClass(rule_validator::class)]
 /**
  * Tests for the validation of rule data.
  *
@@ -33,7 +34,6 @@ require_once(__DIR__ . '/fixtures/rule_test_helper.php');
  *
  * @covers \local_sis_notification\local\rule_validator
  */
-#[\PHPUnit\Framework\Attributes\CoversClass(rule_validator::class)]
 final class rule_validation_test extends \advanced_testcase {
     use rule_test_helper;
 

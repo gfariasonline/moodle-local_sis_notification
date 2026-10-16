@@ -27,12 +27,12 @@ namespace local_sis_notification;
 use local_sis_notification\form\rule_form;
 use local_sis_notification\local\rule_service;
 
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 /**
  * Exercise frozen form values before native Moodle validation.
  *
  * @coversNothing
  */
-#[\PHPUnit\Framework\Attributes\CoversNothing]
 final class rule_form_test extends \advanced_testcase {
     /**
      * Editing the text of an active three-day rule preserves its actual cycle fields.

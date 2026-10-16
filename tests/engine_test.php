@@ -27,12 +27,12 @@ namespace local_sis_notification;
 use local_sis_notification\local\dispatch_service;
 use local_sis_notification\local\recipient_selector;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(dispatch_service::class)]
 /**
  * Exercise real enrolments, completion and the messaging sink.
  *
  * @covers \local_sis_notification\local\dispatch_service
  */
-#[\PHPUnit\Framework\Attributes\CoversClass(dispatch_service::class)]
 final class engine_test extends \advanced_testcase {
     /**
      * Create a rule and enrolled student.

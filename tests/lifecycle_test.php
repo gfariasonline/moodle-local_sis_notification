@@ -27,12 +27,12 @@ namespace local_sis_notification;
 use local_sis_notification\local\dispatch_service;
 use local_sis_notification\privacy\provider;
 
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 /**
  * Exercise course cleanup without affecting other courses.
  *
  * @coversNothing
  */
-#[\PHPUnit\Framework\Attributes\CoversNothing]
 final class lifecycle_test extends \advanced_testcase {
     /**
      * Create an enabled synthetic rule.

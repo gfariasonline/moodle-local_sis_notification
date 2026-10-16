@@ -22,6 +22,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/fixtures/rule_test_helper.php');
 
+#[\PHPUnit\Framework\Attributes\CoversClass(rule_service::class)]
 /**
  * Tests for creating and updating rules with the rule service.
  *
@@ -32,7 +33,6 @@ require_once(__DIR__ . '/fixtures/rule_test_helper.php');
  *
  * @covers \local_sis_notification\local\rule_service
  */
-#[\PHPUnit\Framework\Attributes\CoversClass(rule_service::class)]
 final class rule_service_test extends \advanced_testcase {
     use rule_test_helper;
 

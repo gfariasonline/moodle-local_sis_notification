@@ -23,6 +23,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/fixtures/rule_test_helper.php');
 
+#[\PHPUnit\Framework\Attributes\CoversClass(preview_service::class)]
 /**
  * Tests for the preview of a rule.
  *
@@ -33,7 +34,6 @@ require_once(__DIR__ . '/fixtures/rule_test_helper.php');
  *
  * @covers \local_sis_notification\local\preview_service
  */
-#[\PHPUnit\Framework\Attributes\CoversClass(preview_service::class)]
 final class rule_preview_test extends \advanced_testcase {
     use rule_test_helper;
 
