@@ -95,6 +95,7 @@ $string['previewmessage'] = 'Mensagem';
 $string['previewpage'] = 'Prévia: {$a}';
 $string['previewrule'] = 'Prévia';
 $string['previewsubject'] = 'Assunto';
+$string['previewusing'] = 'Prévia gerada com o curso "{$a->course}" e o usuário "{$a->user}".';
 $string['privacy:metadata'] = 'O plugin de notificações do curso guarda quais notificações foram enviadas a cada usuário, com a situação e as datas.';
 $string['privacy:metadata:core_message'] = 'As notificações são encaminhadas ao sistema de mensagens do Moodle.';
 $string['privacy:metadata:count'] = 'Contadores dos ciclos de lembretes e processamento.';

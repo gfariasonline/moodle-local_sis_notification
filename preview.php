@@ -63,6 +63,10 @@ echo html_writer::tag('p', get_string('previewintro', 'local_sis_notification'))
 try {
     $preview = preview_service::render($rule, $USER, $course);
     echo $OUTPUT->notification(get_string('previewalert', 'local_sis_notification'), \core\output\notification::NOTIFY_INFO);
+    echo html_writer::tag('p', s(get_string('previewusing', 'local_sis_notification', (object) [
+        'course' => format_string($course->fullname, true, ['context' => $context]),
+        'user' => fullname($USER),
+    ])), ['class' => 'text-muted']);
     echo html_writer::tag('h3', get_string('previewsubject', 'local_sis_notification'), ['class' => 'h5']);
     echo html_writer::tag('p', s($preview->subject));
     echo html_writer::tag('h3', get_string('previewmessage', 'local_sis_notification'), ['class' => 'h5']);

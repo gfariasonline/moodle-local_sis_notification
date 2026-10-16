@@ -108,6 +108,7 @@ Feature: Manage the notification rules of a course
     And I click on "Preview" "link" in the "Template example" "table_row"
     Then I should see "Hello Teacher"
     And I should see "Dear Teacher One"
+    And I should see "Preview generated with the course \"Course 1\" and the user \"Teacher One\""
     And I should see "Nothing is sent."
 
   Scenario: Teachers without the manage capability cannot change rules
