@@ -41,8 +41,15 @@ final class scanner {
         }
         try {
             $cursor = (int)get_config('local_sis_notification', 'scanruleid');
-            $rules = $DB->get_records_select('local_sis_notification_rule', 'enabled = 1 AND id > :cursor',
-                ['cursor' => $cursor], 'id', '*', 0, 20);
+            $rules = $DB->get_records_select(
+                'local_sis_notification_rule',
+                'enabled = 1 AND id > :cursor',
+                ['cursor' => $cursor],
+                'id',
+                '*',
+                0,
+                20
+            );
             if (!$rules) {
                 $rules = $DB->get_records('local_sis_notification_rule', ['enabled' => 1], 'id', '*', 0, 20);
             }
@@ -99,17 +106,27 @@ final class scanner {
             $rule->scanuserid = 0;
         }
         $DB->set_field('local_sis_notification_rule', 'scanuserid', $rule->scanuserid, ['id' => $rule->id]);
-        $pending = $DB->get_records_select('local_sis_notification_send',
+        $pending = $DB->get_records_select(
+            'local_sis_notification_send',
             'ruleid = :ruleid AND status = :status AND dueat <= :now',
-            ['ruleid' => $rule->id, 'status' => 'pending', 'now' => $now], 'id', 'id', 0, $budget->tasks);
+            ['ruleid' => $rule->id, 'status' => 'pending', 'now' => $now],
+            'id',
+            'id',
+            0,
+            $budget->tasks
+        );
         foreach ($pending as $send) {
             $task = new \local_sis_notification\task\send_notifications();
             $task->set_custom_data(['sendid' => $send->id]);
             \core\task\manager::queue_adhoc_task($task, true);
             $budget->tasks--;
         }
-        $DB->set_field_select('local_sis_notification_send', 'status', 'uncertain',
+        $DB->set_field_select(
+            'local_sis_notification_send',
+            'status',
+            'uncertain',
             'ruleid = :ruleid AND status = :status AND leaseuntil < :now',
-            ['ruleid' => $rule->id, 'status' => 'processing', 'now' => $now]);
+            ['ruleid' => $rule->id, 'status' => 'processing', 'now' => $now]
+        );
     }
 }

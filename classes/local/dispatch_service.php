@@ -51,5 +51,4 @@ final class dispatch_service {
     public static function lock(int $ruleid) {
         return \core\lock\lock_config::get_lock_factory('local_sis_notification')->get_lock('rule:' . $ruleid, 1);
     }
-
 }

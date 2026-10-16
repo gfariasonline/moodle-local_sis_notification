@@ -30,6 +30,7 @@ use local_sis_notification\privacy\provider;
 /**
  * Exercise course cleanup without affecting other courses.
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 final class lifecycle_test extends \advanced_testcase {
     /**
      * Create an enabled synthetic rule.
@@ -97,14 +98,26 @@ final class lifecycle_test extends \advanced_testcase {
         $ruleid = $this->rule($course->id);
         $DB->update_record('local_sis_notification_rule', (object)['id' => $ruleid, 'conditiontype' => 'activity_incomplete',
             'cmid' => $activity->cmid]);
-        $backup = new \backup_controller(\backup::TYPE_1COURSE, $course->id, \backup::FORMAT_MOODLE,
-            \backup::INTERACTIVE_NO, \backup::MODE_IMPORT, 2);
+        $backup = new \backup_controller(
+            \backup::TYPE_1COURSE,
+            $course->id,
+            \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_IMPORT,
+            2
+        );
         $backup->execute_plan();
         $backupid = $backup->get_backupid();
         $backup->destroy();
         $newcourse = \restore_dbops::create_new_course('Restored', 'restored', $course->category);
-        $restore = new \restore_controller($backupid, $newcourse, \backup::INTERACTIVE_NO,
-            \backup::MODE_GENERAL, 2, \backup::TARGET_NEW_COURSE);
+        $restore = new \restore_controller(
+            $backupid,
+            $newcourse,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_GENERAL,
+            2,
+            \backup::TARGET_NEW_COURSE
+        );
         $restore->execute_precheck();
         $restore->execute_plan();
         $restore->destroy();

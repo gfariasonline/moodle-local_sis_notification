@@ -29,6 +29,7 @@ use local_sis_notification\local\dispatch_service;
 /**
  * Cover delayed cron and asynchronous completion.
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 final class regression_test extends \advanced_testcase {
     /**
      * Return an active old enrolment with a rule.
@@ -59,8 +60,12 @@ final class regression_test extends \advanced_testcase {
         $DB->set_field('user_enrolments', 'timeend', $now + DAYSECS, ['userid' => $user->id]);
         $enrol = enrol_get_plugin('self');
         $instance = $enrol->add_instance($course);
-        $enrol->enrol_user($DB->get_record('enrol', ['id' => $instance]), $user->id,
-            $DB->get_field('role', 'id', ['shortname' => 'student']), $now + 3 * DAYSECS);
+        $enrol->enrol_user(
+            $DB->get_record('enrol', ['id' => $instance]),
+            $user->id,
+            $DB->get_field('role', 'id', ['shortname' => 'student']),
+            $now + 3 * DAYSECS
+        );
         dispatch_service::scan($now + 4 * DAYSECS);
         $state = $DB->get_record('local_sis_notification_state', ['id' => $original->id]);
         $this->assertEquals($original->cycle + 1, $state->cycle);
@@ -122,8 +127,12 @@ final class regression_test extends \advanced_testcase {
         $original = $DB->get_record('local_sis_notification_state', ['ruleid' => $ruleid]);
         $plugin = enrol_get_plugin('self');
         $instance = $plugin->add_instance($course);
-        $plugin->enrol_user($DB->get_record('enrol', ['id' => $instance]), $user->id,
-            $DB->get_field('role', 'id', ['shortname' => 'student']), $now - 10 * DAYSECS);
+        $plugin->enrol_user(
+            $DB->get_record('enrol', ['id' => $instance]),
+            $user->id,
+            $DB->get_field('role', 'id', ['shortname' => 'student']),
+            $now - 10 * DAYSECS
+        );
         $DB->delete_records('user_enrolments', ['userid' => $user->id, 'enrolid' => $manual->id]);
         dispatch_service::scan($now + 1);
         $state = $DB->get_record('local_sis_notification_state', ['id' => $original->id]);

@@ -50,8 +50,11 @@ final class message_renderer {
         }
         $subject = clean_param(strtr($rule->subject, $values), PARAM_TEXT);
         $htmlvalues = array_map('s', $values);
-        $html = format_text(strtr($rule->body, $htmlvalues), $rule->bodyformat,
-            ['context' => $context, 'filter' => false, 'trusted' => false, 'noclean' => false]);
+        $html = format_text(
+            strtr($rule->body, $htmlvalues),
+            $rule->bodyformat,
+            ['context' => $context, 'filter' => false, 'trusted' => false, 'noclean' => false]
+        );
         return (object)['subject' => $subject, 'html' => $html, 'plain' => html_to_text($html)];
     }
     /**
@@ -80,5 +83,4 @@ final class message_renderer {
         }
         return clean_text($body, FORMAT_HTML);
     }
-
 }

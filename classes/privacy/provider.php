@@ -35,17 +35,20 @@ use core_privacy\local\request\writer;
  * Course-context privacy provider for recipients and rule authors.
  */
 final class provider implements
-        \core_privacy\local\metadata\provider,
-        \core_privacy\local\request\plugin\provider,
-        \core_privacy\local\request\core_userlist_provider {
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider {
     /**
      * Describe stored personal data and the messaging subsystem link.
      * @param collection $collection Metadata collection.
      * @return collection
      */
     public static function get_metadata(collection $collection): collection {
-        $collection->add_database_table('local_sis_notification_rule', ['createdby' => 'privacy:metadata:createdby'],
-            'privacy:metadata:rule');
+        $collection->add_database_table(
+            'local_sis_notification_rule',
+            ['createdby' => 'privacy:metadata:createdby'],
+            'privacy:metadata:rule'
+        );
         $fields = ['userid' => 'privacy:metadata:userid', 'timecreated' => 'privacy:metadata:time',
             'timemodified' => 'privacy:metadata:time', 'status' => 'privacy:metadata:status'];
         $collection->add_database_table('local_sis_notification_state', $fields + [
@@ -68,11 +71,13 @@ final class provider implements
      */
     public static function get_contexts_for_userid(int $userid): contextlist {
         $list = new contextlist();
-        $list->add_from_sql('SELECT ctx.id FROM {context} ctx JOIN {local_sis_notification_rule} r ON r.courseid = ctx.instanceid
+        $list->add_from_sql(
+            'SELECT ctx.id FROM {context} ctx JOIN {local_sis_notification_rule} r ON r.courseid = ctx.instanceid
             WHERE ctx.contextlevel = :level AND (r.createdby = :author OR EXISTS
             (SELECT s.id FROM {local_sis_notification_state} s WHERE s.ruleid = r.id AND s.userid = :student) OR EXISTS
             (SELECT d.id FROM {local_sis_notification_send} d WHERE d.ruleid = r.id AND d.userid = :recipient))',
-            ['level' => CONTEXT_COURSE, 'author' => $userid, 'student' => $userid, 'recipient' => $userid]);
+            ['level' => CONTEXT_COURSE, 'author' => $userid, 'student' => $userid, 'recipient' => $userid]
+        );
         return $list;
     }
 
@@ -106,12 +111,15 @@ final class provider implements
             }
             $data = (object)['authoredrules' => array_values($DB->get_records(
                 'local_sis_notification_rule',
-                ['courseid' => $context->instanceid, 'createdby' => $userid]))];
+                ['courseid' => $context->instanceid, 'createdby' => $userid]
+            ))];
             $tables = ['local_sis_notification_state' => 'cycles', 'local_sis_notification_send' => 'dispatches'];
             foreach ($tables as $table => $key) {
-                $data->$key = array_values($DB->get_records_sql("SELECT s.* FROM {{$table}} s
+                $data->$key = array_values($DB->get_records_sql(
+                    "SELECT s.* FROM {{$table}} s
                     JOIN {local_sis_notification_rule} r ON r.id = s.ruleid WHERE r.courseid = :courseid AND s.userid = :userid",
-                    ['courseid' => $context->instanceid, 'userid' => $userid]));
+                    ['courseid' => $context->instanceid, 'userid' => $userid]
+                ));
             }
             writer::with_context($context)->export_data([get_string('pluginname', 'local_sis_notification')], $data);
         }

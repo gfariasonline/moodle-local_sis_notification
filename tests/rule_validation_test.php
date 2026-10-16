@@ -71,6 +71,13 @@ final class rule_validation_test extends \advanced_testcase {
         ];
     }
 
+    /**
+     * Invalid values are rejected.
+     *
+     * @dataProvider invalid_field_provider
+     * @param string $field Field name.
+     * @param mixed $value Invalid value.
+     */
     #[\PHPUnit\Framework\Attributes\DataProvider('invalid_field_provider')]
     public function test_validate_rejects_field(string $field, $value): void {
         $this->resetAfterTest();
@@ -100,6 +107,13 @@ final class rule_validation_test extends \advanced_testcase {
         ];
     }
 
+    /**
+     * Boundary values are accepted.
+     *
+     * @dataProvider valid_boundary_provider
+     * @param string $field Field name.
+     * @param mixed $value Boundary value.
+     */
     #[\PHPUnit\Framework\Attributes\DataProvider('valid_boundary_provider')]
     public function test_validate_accepts_boundaries(string $field, $value): void {
         $this->resetAfterTest();

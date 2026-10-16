@@ -42,7 +42,10 @@ final class cleanup_history extends \core\task\scheduled_task {
     public function execute(): void {
         global $DB;
         $days = max(1, (int)(get_config('local_sis_notification', 'retentiondays') ?: 180));
-        $DB->delete_records_select('local_sis_notification_send', 'timemodified < :cutoff AND status = :status',
-            ['cutoff' => time() - $days * DAYSECS, 'status' => 'accepted']);
+        $DB->delete_records_select(
+            'local_sis_notification_send',
+            'timemodified < :cutoff AND status = :status',
+            ['cutoff' => time() - $days * DAYSECS, 'status' => 'accepted']
+        );
     }
 }

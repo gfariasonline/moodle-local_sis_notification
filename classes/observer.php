@@ -105,10 +105,14 @@ final class observer {
         $scanlock = self::scan_lock();
         try {
             $userid = $event->relateduserid;
-            if ($DB->record_exists_sql('SELECT ue.id FROM {user_enrolments} ue JOIN {enrol} e ON e.id = ue.enrolid
+            if (
+                $DB->record_exists_sql(
+                    'SELECT ue.id FROM {user_enrolments} ue JOIN {enrol} e ON e.id = ue.enrolid
                     WHERE ue.userid = :userid AND e.courseid = :courseid
                     AND ue.timestart <= :nowstart AND (ue.timeend = 0 OR ue.timeend > :nowend)',
-                    ['userid' => $userid, 'courseid' => $event->courseid, 'nowstart' => time(), 'nowend' => time()])) {
+                    ['userid' => $userid, 'courseid' => $event->courseid, 'nowstart' => time(), 'nowend' => time()]
+                )
+            ) {
                 return;
             }
             foreach ($DB->get_records('local_sis_notification_rule', ['courseid' => $event->courseid]) as $rule) {

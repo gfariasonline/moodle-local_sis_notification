@@ -31,8 +31,10 @@ class restore_local_sis_notification_plugin extends restore_local_plugin {
      * @return array
      */
     protected function define_course_plugin_structure(): array {
-        return [new restore_path_element('sis_notification_rule',
-            $this->get_pathfor('/rules/rule'))];
+        return [new restore_path_element(
+            'sis_notification_rule',
+            $this->get_pathfor('/rules/rule')
+        )];
     }
 
     /**
@@ -67,8 +69,12 @@ class restore_local_sis_notification_plugin extends restore_local_plugin {
         foreach ($mappings as $mapping) {
             $rule = $DB->get_record('local_sis_notification_rule', ['id' => $mapping->newitemid]);
             if ($rule && $rule->cmid) {
-                $DB->set_field('local_sis_notification_rule', 'cmid', (int)$this->get_mappingid('course_module', $rule->cmid, 0),
-                    ['id' => $rule->id]);
+                $DB->set_field(
+                    'local_sis_notification_rule',
+                    'cmid',
+                    (int)$this->get_mappingid('course_module', $rule->cmid, 0),
+                    ['id' => $rule->id]
+                );
             }
         }
     }

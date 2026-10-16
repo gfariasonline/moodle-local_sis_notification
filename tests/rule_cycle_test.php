@@ -87,6 +87,12 @@ final class rule_cycle_test extends \advanced_testcase {
         ];
     }
 
+    /**
+     * A cycle-defining change needs a paused rule and the reset checkbox.
+     *
+     * @dataProvider cycle_change_provider
+     * @param array $change Changed form values.
+     */
     #[\PHPUnit\Framework\Attributes\DataProvider('cycle_change_provider')]
     public function test_cycle_change_requires_paused_rule_and_checkbox(array $change): void {
         global $DB;

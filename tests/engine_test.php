@@ -134,8 +134,10 @@ final class engine_test extends \advanced_testcase {
         [, , , $now] = $this->fixture();
         dispatch_service::scan($now);
         $send = $DB->get_record('local_sis_notification_send', []);
-        $DB->update_record('local_sis_notification_send',
-            (object)['id' => $send->id, 'status' => 'processing', 'leaseuntil' => $now - 1]);
+        $DB->update_record(
+            'local_sis_notification_send',
+            (object)['id' => $send->id, 'status' => 'processing', 'leaseuntil' => $now - 1]
+        );
         $sink = $this->redirectMessages();
         dispatch_service::process($send->id, $now);
         $this->assertEquals('uncertain', $DB->get_field('local_sis_notification_send', 'status', ['id' => $send->id]));
@@ -217,8 +219,12 @@ final class engine_test extends \advanced_testcase {
         dispatch_service::scan($now);
         $original = $DB->get_record('local_sis_notification_state', ['ruleid' => $rule->id]);
         $instance = enrol_get_plugin('self')->add_instance($course);
-        enrol_get_plugin('self')->enrol_user($DB->get_record('enrol', ['id' => $instance]), $user->id,
-            $DB->get_field('role', 'id', ['shortname' => 'student']), $now - DAYSECS);
+        enrol_get_plugin('self')->enrol_user(
+            $DB->get_record('enrol', ['id' => $instance]),
+            $user->id,
+            $DB->get_field('role', 'id', ['shortname' => 'student']),
+            $now - DAYSECS
+        );
         $DB->set_field('user_enrolments', 'timeend', $now, ['userid' => $user->id, 'enrolid' =>
             $DB->get_field('enrol', 'id', ['courseid' => $course->id, 'enrol' => 'manual'], IGNORE_MULTIPLE)]);
         dispatch_service::scan($now);

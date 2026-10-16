@@ -134,9 +134,15 @@ final class cycle_manager {
         $key = ['ruleid' => $rule->id, 'userid' => $state->userid, 'cycle' => $state->cycle, 'seq' => $state->sentcount + 1];
         $existing = $DB->get_record('local_sis_notification_send', $key);
         if ($existing) {
-            if ($existing->status === 'suppressed' && in_array($existing->reason,
+            if (
+                $existing->status === 'suppressed' && in_array(
+                    $existing->reason,
                     ['rule_paused', 'user_inactive', 'enrolment_inactive', 'course_unavailable', 'activity_unavailable',
-                     'no_receive_capability', 'completion_pending'], true)) {
+                    'no_receive_capability',
+                    'completion_pending'],
+                    true
+                )
+            ) {
                 $DB->update_record('local_sis_notification_send', (object)['id' => $existing->id, 'status' => 'pending',
                     'reason' => '', 'dueat' => $now, 'timemodified' => $now]);
             }
@@ -157,8 +163,12 @@ final class cycle_manager {
     private static function observe_access(\stdClass $rule, \stdClass $state, \stdClass $condition): void {
         global $DB;
         if ($rule->conditiontype === 'inactivity' && $condition->lastaccess > $state->lastaccess) {
-            if ($state->sentcount || $DB->record_exists('local_sis_notification_send',
-                    ['ruleid' => $rule->id, 'userid' => $state->userid, 'cycle' => $state->cycle])) {
+            if (
+                $state->sentcount || $DB->record_exists(
+                    'local_sis_notification_send',
+                    ['ruleid' => $rule->id, 'userid' => $state->userid, 'cycle' => $state->cycle]
+                )
+            ) {
                 $state->cycle++;
                 $state->sentcount = 0;
                 $state->nextdue = 0;

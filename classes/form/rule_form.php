@@ -193,6 +193,5 @@ class rule_form extends \moodleform {
             \html_writer::tag('p', s(get_string('variables_common', 'local_sis_notification', $common)), ['class' => 'mb-1']) .
             \html_writer::tag('p', s(get_string('variables_activity', 'local_sis_notification', $activity)), ['class' => 'mb-0'])
         );
-
     }
 }

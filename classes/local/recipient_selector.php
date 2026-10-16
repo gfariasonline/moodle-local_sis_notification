@@ -60,9 +60,11 @@ final class recipient_selector {
         if (!self::check_account($userid, $result)) {
             return $result;
         }
-        $rows = $DB->get_records_sql('SELECT ue.*, e.status AS instancestatus
+        $rows = $DB->get_records_sql(
+            'SELECT ue.*, e.status AS instancestatus
             FROM {user_enrolments} ue JOIN {enrol} e ON e.id = ue.enrolid WHERE e.courseid = :courseid AND ue.userid = :userid',
-            ['courseid' => $courseid, 'userid' => $userid]);
+            ['courseid' => $courseid, 'userid' => $userid]
+        );
         $merged = self::merge_periods($rows, $result);
         $result->periods = $merged;
         foreach ($merged as [$start, $end]) {

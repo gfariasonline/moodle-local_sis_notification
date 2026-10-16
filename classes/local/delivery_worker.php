@@ -119,8 +119,13 @@ final class delivery_worker {
      * @param \stdClass $rule Rule.
      * @param int $now Evaluation time.
      */
-    private static function deliver(\core\message\message $message, \stdClass $send,
-            \stdClass $state, \stdClass $rule, int $now): void {
+    private static function deliver(
+        \core\message\message $message,
+        \stdClass $send,
+        \stdClass $state,
+        \stdClass $rule,
+        int $now
+    ): void {
         global $DB;
         try {
             $messageid = message_send($message);
@@ -232,11 +237,18 @@ final class delivery_worker {
      * @param int $now Timestamp.
      * @return string
      */
-    private static function condition_reason(\stdClass $rule, \stdClass $state,
-            \stdClass $course, \stdClass $send, int $now): string {
+    private static function condition_reason(
+        \stdClass $rule,
+        \stdClass $state,
+        \stdClass $course,
+        \stdClass $send,
+        int $now
+    ): string {
         $condition = condition_evaluator::evaluate($rule, $state, $course, $now);
-        if (!$condition->allowed || $condition->baseat + $rule->days * DAYSECS > $now ||
-                ($rule->conditiontype === 'inactivity' && $condition->lastaccess > $state->lastaccess)) {
+        if (
+            !$condition->allowed || $condition->baseat + $rule->days * DAYSECS > $now ||
+                ($rule->conditiontype === 'inactivity' && $condition->lastaccess > $state->lastaccess)
+        ) {
             return $condition->reason ?: 'new_access';
         }
         if ($state->status !== 'active' || $state->sentcount >= $rule->maxsends || $send->seq != $state->sentcount + 1) {

@@ -49,8 +49,11 @@ final class condition_evaluator {
         }
         switch ($rule->conditiontype) {
             case 'inactivity':
-                $access = (int)$DB->get_field('user_lastaccess', 'timeaccess',
-                    ['userid' => $state->userid, 'courseid' => $course->id]);
+                $access = (int)$DB->get_field(
+                    'user_lastaccess',
+                    'timeaccess',
+                    ['userid' => $state->userid, 'courseid' => $course->id]
+                );
                 $result->lastaccess = $access;
                 $result->baseat = max($state->enrolat, $rule->activatedat, $course->startdate, $access);
                 break;
@@ -79,8 +82,13 @@ final class condition_evaluator {
         if (!$completion->is_enabled() || !$completion->get_criteria()) {
             $result->allowed = false;
             $result->reason = 'completion_disabled';
-        } else if ($DB->get_field('course_completions', 'reaggregate',
-                ['course' => $course->id, 'userid' => $state->userid])) {
+        } else if (
+            $DB->get_field(
+                'course_completions',
+                'reaggregate',
+                ['course' => $course->id, 'userid' => $state->userid]
+            )
+        ) {
             $result->allowed = false;
             $result->reason = 'completion_pending';
             $result->temporary = true;
@@ -98,8 +106,13 @@ final class condition_evaluator {
      * @param int $now Timestamp.
      * @param \stdClass $result Evaluation result.
      */
-    private static function evaluate_activity(\stdClass $rule, \stdClass $state,
-            \stdClass $course, int $now, \stdClass $result): void {
+    private static function evaluate_activity(
+        \stdClass $rule,
+        \stdClass $state,
+        \stdClass $course,
+        int $now,
+        \stdClass $result
+    ): void {
         $completion = new \completion_info($course);
         $modinfo = get_fast_modinfo($course, $state->userid);
         if (!isset($modinfo->cms[$rule->cmid])) {

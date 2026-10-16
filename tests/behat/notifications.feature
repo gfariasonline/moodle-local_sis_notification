@@ -28,9 +28,9 @@ Feature: Manage the notification rules of a course
     Then I should see "There are no notification rules in this course yet."
     And I click on "Add a rule" "link"
     And I set the following fields to these values:
-      | Rule name | Weekly nudge                         |
-      | Days      | 7                                    |
-      | Subject   | We miss you, {firstname}             |
+      | Rule name | Weekly nudge                              |
+      | Days      | 7                                         |
+      | Subject   | We miss you, {firstname}                  |
       | Message   | Hi {fullname}, come back to {coursename}. |
     And I press "Save changes"
     And I should see "The rule \"Weekly nudge\" was created. It is paused"
@@ -60,12 +60,12 @@ Feature: Manage the notification rules of a course
     When I navigate to "Notifications" in current page administration
     And I click on "Add a rule" "link"
     And I set the following fields to these values:
-      | Rule name  | Reading reminder                |
+      | Rule name       | Reading reminder                   |
       | Notify students | who have not completed an activity |
-      | Days       | 3                               |
-      | Activity   | Read first                      |
-      | Subject    | Please read {activityname}      |
-      | Message    | Open {activityurl}              |
+      | Days            | 3                                  |
+      | Activity        | Read first                         |
+      | Subject         | Please read {activityname}         |
+      | Message         | Open {activityurl}                 |
     And I press "Save changes"
     Then I should see "The rule \"Reading reminder\" was created."
     And I should see "\"Read first\" not completed 3 days after it becomes available" in the "Reading reminder" "table_row"
@@ -90,9 +90,9 @@ Feature: Manage the notification rules of a course
     When I navigate to "Notifications" in current page administration
     And I click on "Add a rule" "link"
     And I set the following fields to these values:
-      | Rule name | Template example              |
-      | Subject   | Hello {firstname}         |
-      | Message   | Dear {fullname}           |
+      | Rule name | Template example  |
+      | Subject   | Hello {firstname} |
+      | Message   | Dear {fullname}   |
     And I press "Save changes"
     And I click on "Preview" "link" in the "Template example" "table_row"
     Then I should see "Hello Teacher"
@@ -101,8 +101,8 @@ Feature: Manage the notification rules of a course
 
   Scenario: Teachers without the manage capability cannot change rules
     Given the following "permission overrides" exist:
-      | capability                        | permission | role           | contextlevel | reference |
-      | local/sis_notification:manage     | Prohibit   | editingteacher | Course       | C1        |
+      | capability                    | permission | role           | contextlevel | reference |
+      | local/sis_notification:manage | Prohibit   | editingteacher | Course       | C1        |
     When I am on the "Course 1" course page logged in as teacher2
     And I navigate to "Notifications" in current page administration
     Then I should see "Notification history"
@@ -111,7 +111,6 @@ Feature: Manage the notification rules of a course
   Scenario: Students do not see the notifications option
     When I am on the "Course 1" course page logged in as student1
     Then "Notifications" "link" should not exist in current page administration
-
 
   Scenario: Editing the text of an active three-day rule preserves the delay
     Given I am on the "Course 1" course page logged in as teacher1
