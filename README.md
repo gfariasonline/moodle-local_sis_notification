@@ -8,7 +8,7 @@ This local plugin adds **Course notifications** to course settings. It does not 
 - A course remaining incomplete.
 - A selected activity remaining incomplete.
 
-Each rule has a subject, message, delay, optional repeat interval and a maximum number of notifications. Rules start disabled. Days are periods of 24 hours, not calendar dates. Existing students are observed from activation, preventing an immediate backlog of reminders. Activity reminders start when the activity is first observed as available to that student.
+Each rule has a subject, message, delay, optional repeat interval and a maximum number of notifications. New rules are enabled when created (the option can be unticked to save them paused). Days are periods of 24 hours, not calendar dates. Existing students are observed from activation, preventing an immediate backlog of reminders. Activity reminders start when the activity is first observed as available to that student.
 
 ## Installation
 
