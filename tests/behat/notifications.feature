@@ -22,7 +22,7 @@ Feature: Manage the notification rules of a course
       | activity | name       | course | idnumber | completion |
       | page     | Read first | C1     | page1    | 1          |
 
-  Scenario: A new rule is created paused and can be enabled and paused
+  Scenario: A new rule is created enabled and can be paused and enabled again
     Given I am on the "Course 1" course page logged in as teacher1
     When I navigate to "Notifications" in current page administration
     Then I should see "There are no notification rules in this course yet."
@@ -32,16 +32,15 @@ Feature: Manage the notification rules of a course
       | Days      | 7                                         |
       | Subject   | We miss you, {firstname}                  |
       | Message   | Hi {fullname}, come back to {coursename}. |
-    And I set the field "Enable the rule" to "0"
     And I press "Save changes"
-    And I should see "The rule \"Weekly nudge\" was created. It is paused"
-    And I should see "Paused" in the "Weekly nudge" "table_row"
-    And I click on "Enable" "button" in the "Weekly nudge" "table_row"
-    And I should see "The rule \"Weekly nudge\" is now enabled."
+    And I should see "The rule \"Weekly nudge\" was created and is enabled."
     And I should see "Enabled" in the "Weekly nudge" "table_row"
     And I click on "Pause" "button" in the "Weekly nudge" "table_row"
     And I should see "The rule \"Weekly nudge\" was paused."
     And I should see "Paused" in the "Weekly nudge" "table_row"
+    And I click on "Enable" "button" in the "Weekly nudge" "table_row"
+    And I should see "The rule \"Weekly nudge\" is now enabled."
+    And I should see "Enabled" in the "Weekly nudge" "table_row"
 
   Scenario: A new rule is enabled by default and starts with an example message
     Given I am on the "Course 1" course page logged in as teacher1
