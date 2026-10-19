@@ -38,6 +38,14 @@ use local_sis_notification\privacy\provider;
  */
 final class review_fixes_test extends \advanced_testcase {
     /**
+     * Restore the static lock timeout changed by the tests.
+     */
+    protected function tearDown(): void {
+        observer::$locktimeout = 30;
+        parent::tearDown();
+    }
+
+    /**
      * Insert a rule.
      *
      * @param int $courseid
@@ -210,6 +218,106 @@ final class review_fixes_test extends \advanced_testcase {
         $this->assertEquals('suppressed', $DB->get_field('local_sis_notification_send', 'status', ['id' => $pending]));
         $this->assertEquals('activity_deleted', $DB->get_field('local_sis_notification_send', 'reason', ['id' => $pending]));
         $this->assertEquals('accepted', $DB->get_field('local_sis_notification_send', 'status', ['id' => $accepted]));
+    }
+
+    /**
+     * Hold the lock of a rule with a lock type that is not re-entrant inside one process.
+     *
+     * @param int $ruleid
+     * @return \core\lock\lock
+     */
+    private function hold_rule_lock(int $ruleid): \core\lock\lock {
+        global $CFG;
+        $CFG->lock_factory = '\core\lock\file_lock_factory';
+        // Lifecycle observers would wait for the real timeout otherwise.
+        observer::$locktimeout = 1;
+        $lock = \core\lock\lock_config::get_lock_factory('local_sis_notification')->get_lock('rule:' . $ruleid, 5);
+        $this->assertNotFalse($lock);
+        return $lock;
+    }
+
+    /**
+     * A student that leaves the course ends the cycle at once, or later when the rule is locked.
+     */
+    public function test_unenrolment_ends_the_cycle_now_or_through_a_task(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $rule = $this->rule($course->id);
+        $DB->insert_record('local_sis_notification_state', (object) [
+            'ruleid' => $rule->id, 'userid' => $user->id, 'status' => 'active', 'timecreated' => 1, 'timemodified' => 1,
+        ]);
+        $event = \core\event\user_enrolment_deleted::create([
+            'context' => \context_course::instance($course->id), 'objectid' => 1, 'courseid' => $course->id,
+            'relateduserid' => $user->id, 'other' => ['userenrolment' => ['lastenrol' => 1], 'enrol' => 'manual'],
+        ]);
+
+        $lock = $this->hold_rule_lock($rule->id);
+        observer::enrolment_deleted($event);
+        $this->assertEquals('active', $DB->get_field('local_sis_notification_state', 'status', ['ruleid' => $rule->id]));
+        $tasks = \core\task\manager::get_adhoc_tasks(task\lifecycle_cleanup::class);
+        $this->assertCount(1, $tasks);
+
+        $lock->release();
+        reset($tasks)->execute();
+        $this->assertEquals('ended', $DB->get_field('local_sis_notification_state', 'status', ['ruleid' => $rule->id]));
+    }
+
+    /**
+     * Deleting an account never fails because a rule is locked; the cleanup is finished by a task.
+     */
+    public function test_user_deletion_cleanup_is_deferred_while_the_rule_is_locked(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $other = $this->getDataGenerator()->create_user();
+        $rule = $this->rule($course->id, ['createdby' => $user->id]);
+        foreach ([$user, $other] as $account) {
+            $DB->insert_record('local_sis_notification_state', (object) [
+                'ruleid' => $rule->id, 'userid' => $account->id, 'status' => 'active', 'timecreated' => 1, 'timemodified' => 1,
+            ]);
+            $this->send($rule->id, $account->id, 'accepted');
+        }
+        $event = \core\event\user_deleted::create([
+            'objectid' => $user->id, 'relateduserid' => $user->id, 'context' => \context_user::instance($user->id),
+            'other' => ['username' => 'x', 'email' => 'x@example.com', 'idnumber' => '', 'picture' => 0,
+                'mnethostid' => 1],
+        ]);
+
+        $lock = $this->hold_rule_lock($rule->id);
+        observer::user_deleted($event);
+        $this->assertTrue($DB->record_exists('local_sis_notification_state', ['userid' => $user->id]));
+        $tasks = \core\task\manager::get_adhoc_tasks(task\lifecycle_cleanup::class);
+        $this->assertCount(1, $tasks);
+
+        $lock->release();
+        reset($tasks)->execute();
+        $this->assertFalse($DB->record_exists('local_sis_notification_state', ['userid' => $user->id]));
+        $this->assertFalse($DB->record_exists('local_sis_notification_send', ['userid' => $user->id]));
+        $this->assertEquals(0, $DB->get_field('local_sis_notification_rule', 'createdby', ['id' => $rule->id]));
+        $this->assertTrue($DB->record_exists('local_sis_notification_state', ['userid' => $other->id]));
+        $this->assertTrue($DB->record_exists('local_sis_notification_send', ['userid' => $other->id]));
+    }
+
+    /**
+     * A delivery waits for the next scan, quietly, while the scanner or another worker holds the rule.
+     */
+    public function test_worker_does_nothing_while_the_rule_is_locked(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $rule = $this->rule($course->id);
+        $sendid = $this->send($rule->id, $user->id, 'pending');
+
+        $lock = $this->hold_rule_lock($rule->id);
+        dispatch_service::process($sendid, time());
+        $lock->release();
+
+        $this->assertEquals('pending', $DB->get_field('local_sis_notification_send', 'status', ['id' => $sendid]));
+        $this->assertEquals(0, $DB->get_field('local_sis_notification_send', 'attempts', ['id' => $sendid]));
     }
 
     /**

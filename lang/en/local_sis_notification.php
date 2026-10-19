@@ -185,6 +185,7 @@ $string['subject'] = 'Subject';
 $string['task_cleanup_history'] = 'Clean up old notification history';
 $string['task_process_rules'] = 'Process notification rules';
 $string['taskcleanup'] = 'Clean up notification history';
+$string['tasklifecycle'] = 'Finish the notification cleanup of a user';
 $string['taskscan'] = 'Discover course notifications';
 $string['variables'] = 'Variables you can use';
 $string['variables_activity'] = 'Only when the condition is an activity: {$a}.';
