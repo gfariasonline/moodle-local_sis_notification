@@ -196,7 +196,12 @@ final class review_fixes_test extends \advanced_testcase {
         $pending = $this->send($rule->id, $user->id, 'pending');
         $accepted = $this->send($rule->id, $user->id, 'accepted', 2);
 
-        course_delete_module($page->cmid);
+        // course_delete_module() is deprecated since Moodle 5.2 in favour of the course format actions.
+        if (method_exists(\core_courseformat\local\cmactions::class, 'delete')) {
+            (new \core_courseformat\local\cmactions($course))->delete($page->cmid);
+        } else {
+            course_delete_module($page->cmid);
+        }
 
         $stored = $DB->get_record('local_sis_notification_rule', ['id' => $rule->id]);
         $this->assertEquals(0, $stored->enabled);
