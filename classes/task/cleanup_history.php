@@ -37,15 +37,14 @@ final class cleanup_history extends \core\task\scheduled_task {
     }
 
     /**
-     * Delete old terminal dispatches only.
+     * Delete old accepted, suppressed and failed dispatches. Uncertain ones are kept for auditing and
+     * pending or processing ones are still in use.
      */
     public function execute(): void {
         global $DB;
         $days = max(1, (int)(get_config('local_sis_notification', 'retentiondays') ?: 180));
-        $DB->delete_records_select(
-            'local_sis_notification_send',
-            'timemodified < :cutoff AND status = :status',
-            ['cutoff' => time() - $days * DAYSECS, 'status' => 'accepted']
-        );
+        [$insql, $params] = $DB->get_in_or_equal(['accepted', 'suppressed', 'failed'], SQL_PARAMS_NAMED);
+        $params['cutoff'] = \core\di::get(\core\clock::class)->time() - $days * DAYSECS;
+        $DB->delete_records_select('local_sis_notification_send', "timemodified < :cutoff AND status $insql", $params);
     }
 }

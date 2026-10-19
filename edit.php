@@ -67,7 +67,18 @@ if ($data = $form->get_data()) {
         $name = format_string($data->name, true, ['context' => $context]);
         $enable = !$rule && !empty($data->enableonsave);
         if ($enable) {
-            rule_service::set_enabled($savedid, $course->id, true);
+            try {
+                rule_service::set_enabled($savedid, $course->id, true);
+            } catch (moodle_exception $e) {
+                // The rule exists, paused: send the user to the list instead of back to a form that would create it again.
+                $details = $e instanceof invalid_parameter_exception ? s($e->debuginfo) : $e->getMessage();
+                redirect(
+                    $returnurl,
+                    get_string('ruleenablefailed', 'local_sis_notification', (object) ['name' => $name, 'errors' => $details]),
+                    null,
+                    \core\output\notification::NOTIFY_ERROR
+                );
+            }
         }
         $messagekey = $rule ? 'ruleupdated' : ($enable ? 'rulecreatedenabled' : 'rulecreated');
         redirect(

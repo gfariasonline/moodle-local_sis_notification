@@ -200,12 +200,11 @@ if (!$rules) {
                 get_string($rule->enabled ? 'pauserule' : 'enablerule', 'local_sis_notification'),
                 $name
             );
-            foreach (
-                [
-                    'editrule' => '/local/sis_notification/edit.php',
-                    'previewrule' => '/local/sis_notification/preview.php',
-                ] as $string => $path
-            ) {
+            $rulepages = [
+                'editrule' => '/local/sis_notification/edit.php',
+                'previewrule' => '/local/sis_notification/preview.php',
+            ];
+            foreach ($rulepages as $string => $path) {
                 $links[] = html_writer::link(
                     new moodle_url($path, ['courseid' => $course->id, 'id' => $rule->id]),
                     get_string($string, 'local_sis_notification') . html_writer::span(': ' . $name, 'visually-hidden sr-only'),

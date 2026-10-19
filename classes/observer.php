@@ -35,17 +35,18 @@ final class observer {
     public static function course_reset(\core\event\course_reset_ended $event): void {
         global $DB;
         foreach ($DB->get_records('local_sis_notification_rule', ['courseid' => $event->courseid]) as $rule) {
-            $lock = \local_sis_notification\local\dispatch_service::lock($rule->id);
-            if (!$lock) {
-                throw new \coding_exception('Unable to lock notification rule during course reset.');
-            }
+            $lock = self::rule_lock($rule->id);
             try {
                 $transaction = $DB->start_delegated_transaction();
-                $DB->delete_records('local_sis_notification_send', ['ruleid' => $rule->id]);
-                $DB->delete_records('local_sis_notification_state', ['ruleid' => $rule->id]);
-                $DB->update_record('local_sis_notification_rule', (object)['id' => $rule->id, 'enabled' => 0,
-                    'activatedat' => 0, 'revision' => $rule->revision + 1, 'scanuserid' => 0]);
-                $transaction->allow_commit();
+                try {
+                    $DB->delete_records('local_sis_notification_send', ['ruleid' => $rule->id]);
+                    $DB->delete_records('local_sis_notification_state', ['ruleid' => $rule->id]);
+                    $DB->update_record('local_sis_notification_rule', (object)['id' => $rule->id, 'enabled' => 0,
+                        'activatedat' => 0, 'revision' => $rule->revision + 1, 'scanuserid' => 0]);
+                    $transaction->allow_commit();
+                } catch (\Throwable $e) {
+                    $transaction->rollback($e);
+                }
             } finally {
                 $lock->release();
             }
@@ -69,16 +70,17 @@ final class observer {
      */
     public static function delete_rule(int $ruleid): void {
         global $DB;
-        $lock = \local_sis_notification\local\dispatch_service::lock($ruleid);
-        if (!$lock) {
-            throw new \coding_exception('Unable to lock notification rule for deletion.');
-        }
+        $lock = self::rule_lock($ruleid);
         try {
             $transaction = $DB->start_delegated_transaction();
-            $DB->delete_records('local_sis_notification_send', ['ruleid' => $ruleid]);
-            $DB->delete_records('local_sis_notification_state', ['ruleid' => $ruleid]);
-            $DB->delete_records('local_sis_notification_rule', ['id' => $ruleid]);
-            $transaction->allow_commit();
+            try {
+                $DB->delete_records('local_sis_notification_send', ['ruleid' => $ruleid]);
+                $DB->delete_records('local_sis_notification_state', ['ruleid' => $ruleid]);
+                $DB->delete_records('local_sis_notification_rule', ['id' => $ruleid]);
+                $transaction->allow_commit();
+            } catch (\Throwable $e) {
+                $transaction->rollback($e);
+            }
         } finally {
             $lock->release();
         }
@@ -91,8 +93,34 @@ final class observer {
     public static function activity_deleted(\core\event\course_module_deleted $event): void {
         global $DB;
         foreach ($DB->get_records('local_sis_notification_rule', ['cmid' => $event->objectid]) as $rule) {
-            $DB->set_field('local_sis_notification_rule', 'enabled', 0, ['id' => $rule->id]);
-            $DB->set_field('local_sis_notification_send', 'status', 'suppressed', ['ruleid' => $rule->id, 'status' => 'pending']);
+            $lock = self::rule_lock($rule->id);
+            try {
+                $now = \core\di::get(\core\clock::class)->time();
+                $transaction = $DB->start_delegated_transaction();
+                try {
+                    // The target is gone, so the cycle restarts like it does for any other change of the target.
+                    $DB->execute(
+                        'UPDATE {local_sis_notification_rule}
+                            SET enabled = 0, activatedat = 0, scanuserid = 0, revision = revision + 1, timemodified = :now
+                          WHERE id = :id',
+                        ['now' => $now, 'id' => $rule->id]
+                    );
+                    $DB->execute(
+                        'UPDATE {local_sis_notification_send}
+                            SET status = :newstatus, reason = :reason, timemodified = :now
+                          WHERE ruleid = :ruleid AND status = :pending',
+                        [
+                            'newstatus' => 'suppressed', 'reason' => 'activity_deleted', 'now' => $now,
+                            'ruleid' => $rule->id, 'pending' => 'pending',
+                        ]
+                    );
+                    $transaction->allow_commit();
+                } catch (\Throwable $e) {
+                    $transaction->rollback($e);
+                }
+            } finally {
+                $lock->release();
+            }
         }
     }
 
@@ -105,12 +133,13 @@ final class observer {
         $scanlock = self::scan_lock();
         try {
             $userid = $event->relateduserid;
+            $now = \core\di::get(\core\clock::class)->time();
             if (
                 $DB->record_exists_sql(
                     'SELECT ue.id FROM {user_enrolments} ue JOIN {enrol} e ON e.id = ue.enrolid
                     WHERE ue.userid = :userid AND e.courseid = :courseid
                     AND ue.timestart <= :nowstart AND (ue.timeend = 0 OR ue.timeend > :nowend)',
-                    ['userid' => $userid, 'courseid' => $event->courseid, 'nowstart' => time(), 'nowend' => time()]
+                    ['userid' => $userid, 'courseid' => $event->courseid, 'nowstart' => $now, 'nowend' => $now]
                 )
             ) {
                 return;
@@ -176,7 +205,7 @@ final class observer {
      * @return \core\lock\lock
      */
     private static function rule_lock(int $ruleid): \core\lock\lock {
-        $lock = \core\lock\lock_config::get_lock_factory('local_sis_notification')->get_lock('rule:' . $ruleid, 30);
+        $lock = \local_sis_notification\local\dispatch_service::lock($ruleid, 30);
         if (!$lock) {
             throw new \coding_exception('Unable to lock notification rule for lifecycle cleanup.');
         }

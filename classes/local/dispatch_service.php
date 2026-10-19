@@ -33,7 +33,7 @@ final class dispatch_service {
      * @param int|null $now Evaluation time.
      */
     public static function scan(?int $now = null): void {
-        scanner::scan($now ?? time());
+        scanner::scan($now ?? \core\di::get(\core\clock::class)->time());
     }
     /**
      * Process one reserved notification.
@@ -41,14 +41,15 @@ final class dispatch_service {
      * @param int|null $now Evaluation time.
      */
     public static function process(int $sendid, ?int $now = null): void {
-        delivery_worker::process($sendid, $now ?? time());
+        delivery_worker::process($sendid, $now ?? \core\di::get(\core\clock::class)->time());
     }
     /**
      * Acquire the same rule lock used by configuration changes.
      * @param int $ruleid Rule ID.
+     * @param int $timeout Seconds to wait. Lifecycle cleanup waits longer than the engine, which can skip a busy rule.
      * @return \core\lock\lock|false
      */
-    public static function lock(int $ruleid) {
-        return \core\lock\lock_config::get_lock_factory('local_sis_notification')->get_lock('rule:' . $ruleid, 1);
+    public static function lock(int $ruleid, int $timeout = 1) {
+        return \core\lock\lock_config::get_lock_factory('local_sis_notification')->get_lock('rule:' . $ruleid, $timeout);
     }
 }

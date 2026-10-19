@@ -80,8 +80,10 @@ final class condition_evaluator {
         global $DB;
         $completion = new \completion_info($course);
         if (!$completion->is_enabled() || !$completion->get_criteria()) {
+            // Completion can be enabled again, so the cycle must not end.
             $result->allowed = false;
             $result->reason = 'completion_disabled';
+            $result->temporary = true;
         } else if (
             $DB->get_field(
                 'course_completions',
@@ -124,6 +126,7 @@ final class condition_evaluator {
         if (!$completion->is_enabled($cm)) {
             $result->allowed = false;
             $result->reason = 'completion_disabled';
+            $result->temporary = true;
         } else if (!$cm->uservisible) {
             $result->allowed = false;
             $result->reason = 'activity_unavailable';

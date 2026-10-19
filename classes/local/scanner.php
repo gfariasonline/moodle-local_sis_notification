@@ -34,7 +34,7 @@ final class scanner {
      */
     public static function scan(int $now): void {
         global $DB;
-                $limit = max(1, min(1000, (int)(get_config('local_sis_notification', 'batchsize') ?: 200)));
+        $limit = max(1, min(1000, (int)(get_config('local_sis_notification', 'batchsize') ?: 200)));
         $scanlock = \core\lock\lock_config::get_lock_factory('local_sis_notification')->get_lock('scan', 0);
         if (!$scanlock) {
             return;

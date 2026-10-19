@@ -166,27 +166,35 @@ final class provider implements
     private static function erase(int $courseid, ?array $userids): void {
         global $DB;
         foreach ($DB->get_records('local_sis_notification_rule', ['courseid' => $courseid]) as $rule) {
-            $lock = \local_sis_notification\local\dispatch_service::lock($rule->id);
+            // Erasure must not be skipped, so wait longer than the engine does.
+            $lock = \local_sis_notification\local\dispatch_service::lock($rule->id, 30);
             if (!$lock) {
                 throw new \coding_exception('Unable to lock notification rule for privacy erasure.');
             }
             try {
                 $transaction = $DB->start_delegated_transaction();
-                foreach (['local_sis_notification_state', 'local_sis_notification_send'] as $table) {
-                    if ($userids === null) {
-                        $DB->delete_records($table, ['ruleid' => $rule->id]);
-                    } else {
-                        [$insql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
-                        $params['ruleid'] = $rule->id;
-                        $DB->delete_records_select($table, 'ruleid = :ruleid AND userid ' . $insql, $params);
+                try {
+                    foreach (['local_sis_notification_state', 'local_sis_notification_send'] as $table) {
+                        if ($userids === null) {
+                            $DB->delete_records($table, ['ruleid' => $rule->id]);
+                        } else {
+                            [$insql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+                            $params['ruleid'] = $rule->id;
+                            $DB->delete_records_select($table, 'ruleid = :ruleid AND userid ' . $insql, $params);
+                        }
                     }
+                    if ($userids === null || in_array($rule->createdby, $userids)) {
+                        $DB->set_field('local_sis_notification_rule', 'createdby', 0, ['id' => $rule->id]);
+                    }
+                    if ($userids === null) {
+                        // Do not recreate erased state on the next scan until a manager explicitly reactivates.
+                        // Erasing some users must not pause the rule for everyone else.
+                        $DB->set_field('local_sis_notification_rule', 'enabled', 0, ['id' => $rule->id]);
+                    }
+                    $transaction->allow_commit();
+                } catch (\Throwable $e) {
+                    $transaction->rollback($e);
                 }
-                if ($userids === null || in_array($rule->createdby, $userids)) {
-                    $DB->set_field('local_sis_notification_rule', 'createdby', 0, ['id' => $rule->id]);
-                }
-                // Do not recreate erased state on the next scan until a manager explicitly reactivates.
-                $DB->set_field('local_sis_notification_rule', 'enabled', 0, ['id' => $rule->id]);
-                $transaction->allow_commit();
             } finally {
                 $lock->release();
             }

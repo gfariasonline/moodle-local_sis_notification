@@ -28,6 +28,12 @@ namespace local_sis_notification\local;
  * Revalidate an outbox reservation and record its delivery outcome.
  */
 final class delivery_worker {
+    /** @var int Attempts before an exception from the messaging API leaves the delivery with an unknown outcome. */
+    private const MAX_ATTEMPTS = 3;
+
+    /** @var int Seconds of delay per attempt before a delivery that threw an exception is tried again. */
+    private const RETRY_DELAY = 300;
+
     /**
      * Deliver a reserved notification after rechecking all eligibility gates.
      * @param int $sendid Outbox ID.
@@ -35,14 +41,15 @@ final class delivery_worker {
      */
     public static function process(int $sendid, ?int $now = null): void {
         global $DB;
-        $now = $now ?? time();
+        $now = $now ?? \core\di::get(\core\clock::class)->time();
         $send = $DB->get_record('local_sis_notification_send', ['id' => $sendid]);
         if (!$send) {
             return;
         }
         $lock = dispatch_service::lock($send->ruleid);
         if (!$lock) {
-            throw new \moodle_exception('locktimeout', 'error');
+            // The scanner or another worker is busy with this rule; the delivery stays pending and the next scan queues it.
+            return;
         }
         try {
             self::process_locked($sendid, $now);
@@ -130,6 +137,12 @@ final class delivery_worker {
         try {
             $messageid = message_send($message);
         } catch (\Throwable $exception) {
+            if ($send->attempts < self::MAX_ATTEMPTS) {
+                $send->dueat = $now + self::RETRY_DELAY * $send->attempts;
+                self::status($send, 'pending', 'api_exception', $now);
+                mtrace('SIS Notification: dispatch ' . $send->id . ' will be tried again');
+                return;
+            }
             self::status($send, 'uncertain', 'api_exception', $now);
             mtrace('SIS Notification: ambiguous dispatch ' . $send->id);
             return;

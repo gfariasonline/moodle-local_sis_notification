@@ -37,15 +37,17 @@ final class message_renderer {
      */
     public static function render(\stdClass $rule, \stdClass $user, \stdClass $course): \stdClass {
         $context = \context_course::instance($course->id);
+        // Plain values: format_string() must not escape here, the HTML body escapes every value once with s().
+        $options = ['context' => $context, 'escape' => false];
         $values = [
             '{firstname}' => $user->firstname, '{fullname}' => fullname($user),
-            '{coursename}' => format_string($course->fullname, true, ['context' => $context]),
+            '{coursename}' => format_string($course->fullname, true, $options),
             '{courseurl}' => (new \moodle_url('/course/view.php', ['id' => $course->id]))->out(false),
             '{days}' => (string)$rule->days,
         ];
         if ($rule->conditiontype === 'activity_incomplete') {
             $cm = get_fast_modinfo($course, $user->id)->get_cm($rule->cmid);
-            $values['{activityname}'] = format_string($cm->name, true, ['context' => $context]);
+            $values['{activityname}'] = format_string($cm->name, true, $options);
             $values['{activityurl}'] = (new \moodle_url('/mod/' . $cm->modname . '/view.php', ['id' => $cm->id]))->out(false);
         }
         $subject = clean_param(strtr($rule->subject, $values), PARAM_TEXT);

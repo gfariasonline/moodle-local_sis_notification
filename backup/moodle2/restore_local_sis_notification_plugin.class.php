@@ -78,12 +78,4 @@ class restore_local_sis_notification_plugin extends restore_local_plugin {
             }
         }
     }
-
-    /**
-     * Decode links in restored configuration bodies and subjects.
-     * @return array
-     */
-    public static function define_decode_contents(): array {
-        return [new restore_decode_content('local_sis_notification_rule', ['body'], 'local_sis_notification_rule')];
-    }
 }

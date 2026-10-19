@@ -38,7 +38,7 @@ final class recipient_selector {
      */
     public static function get_candidates(int $courseid, int $afteruserid = 0, int $limit = 200, ?int $now = null): array {
         global $DB;
-        $now = $now ?? time();
+        $now = $now ?? \core\di::get(\core\clock::class)->time();
         return $DB->get_records_sql('SELECT DISTINCT u.id FROM {user} u
                   JOIN {user_enrolments} ue ON ue.userid = u.id JOIN {enrol} e ON e.id = ue.enrolid
                  WHERE e.courseid = :courseid AND u.id > :cursor AND u.deleted = 0 AND ue.timestart <= :now
@@ -54,7 +54,7 @@ final class recipient_selector {
      */
     public static function get_eligibility(int $courseid, int $userid, ?int $now = null): \stdClass {
         global $DB;
-        $now = $now ?? time();
+        $now = $now ?? \core\di::get(\core\clock::class)->time();
         $result = (object)['eligible' => false, 'baseline' => 0, 'reason' => 'unenrolled',
             'temporary' => false, 'until' => 0, 'periods' => []];
         if (!self::check_account($userid, $result)) {

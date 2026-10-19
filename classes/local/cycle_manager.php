@@ -139,7 +139,7 @@ final class cycle_manager {
                     $existing->reason,
                     ['rule_paused', 'user_inactive', 'enrolment_inactive', 'course_unavailable', 'activity_unavailable',
                     'no_receive_capability',
-                    'completion_pending'],
+                    'completion_pending', 'completion_disabled'],
                     true
                 )
             ) {
