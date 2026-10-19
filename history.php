@@ -111,7 +111,6 @@ if (!$rows) {
     $badges = [
         rule_service::STATUS_ACCEPTED => 'bg-success text-white',
         rule_service::STATUS_UNCERTAIN => 'bg-warning text-dark',
-        rule_service::STATUS_FAILED => 'bg-danger text-white',
         rule_service::STATUS_SUPPRESSED => 'bg-secondary text-white',
         rule_service::STATUS_PENDING => 'bg-info text-dark',
         rule_service::STATUS_PROCESSING => 'bg-info text-dark',

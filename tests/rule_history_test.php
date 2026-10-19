@@ -43,7 +43,7 @@ final class rule_history_test extends \advanced_testcase {
         $this->setAdminUser();
         $id = rule_service::save($this->rule_data(), $course->id);
         $this->add_send($id, $s1->id, 'accepted');
-        $this->add_send($id, $s2->id, 'failed');
+        $this->add_send($id, $s2->id, 'uncertain');
         $context = \context_course::instance($course->id);
 
         // The non-editing teacher belongs to group 1 and cannot access all groups.
@@ -81,7 +81,7 @@ final class rule_history_test extends \advanced_testcase {
         $two = rule_service::save($this->rule_data(['name' => 'Two']), $course->id);
         $other = $this->create_course();
         $foreign = rule_service::save($this->rule_data(['name' => 'Foreign']), $other->id);
-        $statuses = ['accepted', 'uncertain', 'failed', 'suppressed', 'pending', 'processing'];
+        $statuses = ['accepted', 'uncertain', 'suppressed', 'pending', 'processing'];
         foreach ($statuses as $status) {
             $user = $this->getDataGenerator()->create_user();
             $this->add_send($one, $user->id, $status);
@@ -89,15 +89,15 @@ final class rule_history_test extends \advanced_testcase {
         $this->add_send($two, $this->getDataGenerator()->create_user()->id, 'accepted');
         $this->add_send($foreign, $this->getDataGenerator()->create_user()->id, 'accepted');
 
-        $this->assertEquals(7, course_access::count_history($course, $context, 0, ''));
-        $this->assertEquals(6, course_access::count_history($course, $context, $one, ''));
+        $this->assertEquals(6, course_access::count_history($course, $context, 0, ''));
+        $this->assertEquals(5, course_access::count_history($course, $context, $one, ''));
         $this->assertEquals(2, course_access::count_history($course, $context, 0, 'accepted'));
         $this->assertEquals(0, course_access::count_history($course, $context, $foreign, ''));
 
         $page1 = course_access::get_history($course, $context, 0, '', 0, 5);
         $page2 = course_access::get_history($course, $context, 0, '', 1, 5);
         $this->assertCount(5, $page1);
-        $this->assertCount(2, $page2);
+        $this->assertCount(1, $page2);
         $this->assertSame([], array_intersect(array_keys($page1), array_keys($page2)));
 
         $row = reset($page1);

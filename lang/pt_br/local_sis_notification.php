@@ -175,7 +175,6 @@ $string['sis_notification:receive'] = 'Receber notificações do curso';
 $string['sis_notification:viewhistory'] = 'Ver o histórico de notificações do curso';
 $string['status_accepted'] = 'Aceita';
 $string['status_accepted_help'] = 'Aceita pelo sistema de mensagens. Isto não confirma que o aluno recebeu ou leu a mensagem.';
-$string['status_failed'] = 'Falhou';
 $string['status_pending'] = 'Aguardando';
 $string['status_processing'] = 'Em processamento';
 $string['status_suppressed'] = 'Cancelada';

@@ -196,7 +196,7 @@ final class review_fixes_test extends \advanced_testcase {
         $pending = $this->send($rule->id, $user->id, 'pending');
         $accepted = $this->send($rule->id, $user->id, 'accepted', 2);
 
-        // course_delete_module() is deprecated since Moodle 5.2 in favour of the course format actions.
+        // Moodle 5.2 deprecated course_delete_module() in favour of the course format actions.
         if (method_exists(\core_courseformat\local\cmactions::class, 'delete')) {
             (new \core_courseformat\local\cmactions($course))->delete($page->cmid);
         } else {
@@ -213,7 +213,7 @@ final class review_fixes_test extends \advanced_testcase {
     }
 
     /**
-     * Retention removes old accepted, suppressed and failed deliveries and keeps the rest.
+     * Retention removes old accepted and suppressed deliveries and keeps the rest.
      */
     public function test_cleanup_removes_only_terminal_history(): void {
         global $DB;
@@ -225,14 +225,14 @@ final class review_fixes_test extends \advanced_testcase {
         $old = time() - 31 * DAYSECS;
         $seq = 0;
         $ids = [];
-        foreach (['accepted', 'suppressed', 'failed', 'uncertain', 'pending', 'processing'] as $status) {
+        foreach (['accepted', 'suppressed', 'uncertain', 'pending', 'processing'] as $status) {
             $ids[$status] = $this->send($rule->id, $user->id, $status, ++$seq, $old);
         }
         $recent = $this->send($rule->id, $user->id, 'suppressed', ++$seq);
 
         (new task\cleanup_history())->execute();
 
-        foreach (['accepted', 'suppressed', 'failed'] as $status) {
+        foreach (['accepted', 'suppressed'] as $status) {
             $this->assertFalse($DB->record_exists('local_sis_notification_send', ['id' => $ids[$status]]), $status);
         }
         foreach (['uncertain', 'pending', 'processing'] as $status) {

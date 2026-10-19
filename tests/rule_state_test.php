@@ -101,7 +101,7 @@ final class rule_state_test extends \advanced_testcase {
         $otherid = rule_service::save($this->rule_data(['name' => 'Other']), $course->id);
         rule_service::set_enabled($id, $course->id, true);
 
-        $statuses = ['pending', 'accepted', 'processing', 'uncertain', 'failed', 'suppressed'];
+        $statuses = ['pending', 'accepted', 'processing', 'uncertain', 'suppressed'];
         $sendids = [];
         foreach ($statuses as $index => $status) {
             $sendids[$status] = $this->add_send($id, $users[$index]->id, $status);
@@ -113,7 +113,7 @@ final class rule_state_test extends \advanced_testcase {
 
         $this->assertEquals('suppressed', $DB->get_field('local_sis_notification_send', 'status', ['id' => $sendids['pending']]));
         $this->assertEquals('rule_paused', $DB->get_field('local_sis_notification_send', 'reason', ['id' => $sendids['pending']]));
-        foreach (['accepted', 'processing', 'uncertain', 'failed', 'suppressed'] as $status) {
+        foreach (['accepted', 'processing', 'uncertain', 'suppressed'] as $status) {
             $send = $DB->get_record('local_sis_notification_send', ['id' => $sendids[$status]]);
             $this->assertEquals($status, $send->status);
             $this->assertSame('', $send->reason);

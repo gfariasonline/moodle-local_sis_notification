@@ -46,8 +46,6 @@ class rule_service {
     public const STATUS_ACCEPTED = 'accepted';
     /** @var string Delivery with an unknown outcome. */
     public const STATUS_UNCERTAIN = 'uncertain';
-    /** @var string Delivery that failed. */
-    public const STATUS_FAILED = 'failed';
     /** @var string Delivery that was cancelled before it was sent. */
     public const STATUS_SUPPRESSED = 'suppressed';
 
@@ -118,7 +116,6 @@ class rule_service {
         return [
             self::STATUS_ACCEPTED,
             self::STATUS_UNCERTAIN,
-            self::STATUS_FAILED,
             self::STATUS_SUPPRESSED,
             self::STATUS_PENDING,
             self::STATUS_PROCESSING,

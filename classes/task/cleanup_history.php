@@ -37,13 +37,13 @@ final class cleanup_history extends \core\task\scheduled_task {
     }
 
     /**
-     * Delete old accepted, suppressed and failed dispatches. Uncertain ones are kept for auditing and
+     * Delete old accepted and suppressed dispatches. Uncertain ones are kept for auditing and
      * pending or processing ones are still in use.
      */
     public function execute(): void {
         global $DB;
         $days = max(1, (int)(get_config('local_sis_notification', 'retentiondays') ?: 180));
-        [$insql, $params] = $DB->get_in_or_equal(['accepted', 'suppressed', 'failed'], SQL_PARAMS_NAMED);
+        [$insql, $params] = $DB->get_in_or_equal(['accepted', 'suppressed'], SQL_PARAMS_NAMED);
         $params['cutoff'] = \core\di::get(\core\clock::class)->time() - $days * DAYSECS;
         $DB->delete_records_select('local_sis_notification_send', "timemodified < :cutoff AND status $insql", $params);
     }
